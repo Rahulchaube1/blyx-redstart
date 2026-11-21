@@ -1,0 +1,27 @@
+fn betamoment_finite(values: vector) -> bool {
+    let mut i = 0;
+    while i < len(values) {
+        let value = at(values, i);
+        if !(value - value == 0.0) {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+fn betamoment_compute(alpha: f64, beta: f64) -> vector {
+    let total = alpha + beta;
+    let mean = alpha / total;
+    [mean, mean * (beta / total) / (total + 1.0), total]
+}
+
+// Calculate the mean and variance of a Beta distribution.
+// Returns [mean, variance, concentration]. Uses mean times its complement divided by concentration plus one.
+pub fn betamoment_summary(alpha: f64, beta: f64) -> vector {
+    if !(alpha > 0.0 && alpha - alpha == 0.0) { return []; }
+    if !(beta > 0.0 && beta - beta == 0.0) { return []; }
+    let result = betamoment_compute(alpha, beta);
+    if !betamoment_finite(result) { return []; }
+    result
+}

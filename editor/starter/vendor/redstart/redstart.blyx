@@ -1,0 +1,38 @@
+use betaupdate;
+use betamoment;
+
+fn redstart_finite(values: vector) -> bool {
+    let mut i = 0;
+    while i < len(values) {
+        let value = at(values, i);
+        if !(value - value == 0.0) {
+            return false;
+        }
+        i += 1;
+    }
+    true
+}
+
+fn redstart_compute(alpha: f64, beta: f64, positive: f64, negative: f64) -> vector {
+    let next = betaupdate_observe(alpha, beta, positive, negative);
+    if len(next) == 0 {
+        return [];
+    }
+    let stats = betamoment_summary(at(next, 0), at(next, 1));
+    if len(stats) == 0 {
+        return [];
+    }
+    [at(stats, 0), at(stats, 1), at(next, 0), at(next, 1)]
+}
+
+// Update a binary-event model and report uncertainty in its probability.
+// Returns [posterior mean, posterior variance, posterior alpha, posterior beta]. This conjugate model assumes exchangeable Bernoulli observations.
+pub fn redstart_posterior(alpha: f64, beta: f64, positive: f64, negative: f64) -> vector {
+    if !(alpha > 0.0 && alpha - alpha == 0.0) { return []; }
+    if !(beta > 0.0 && beta - beta == 0.0) { return []; }
+    if !(positive >= 0.0 && positive <= 9007199254740991.0 && positive % 1.0 == 0.0) { return []; }
+    if !(negative >= 0.0 && negative <= 9007199254740991.0 && negative % 1.0 == 0.0) { return []; }
+    let result = redstart_compute(alpha, beta, positive, negative);
+    if !redstart_finite(result) { return []; }
+    result
+}
